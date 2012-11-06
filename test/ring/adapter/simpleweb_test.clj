@@ -1,6 +1,6 @@
-(ns ring-simpleweb-adapter.core-test
+(ns ring.adapter.simpleweb-test
   (:use clojure.test
-        ring-simpleweb-adapter.core))
+        ring.adapter.simpleweb))
 
 (deftest a-test
   (testing "FIXME, I fail."
