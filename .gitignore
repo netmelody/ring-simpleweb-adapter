@@ -1,5 +1,6 @@
 /target
 /lib
+/bin
 /classes
 /checkouts
 pom.xml
