@@ -20,7 +20,8 @@
             (let [request-map (build-request-map request)
                   response-map (handler request-map)]
               (when response-map
-                (write-response response response-map))))))
+                (write-response response response-map))
+              (.close response)))))
 
 (defn ^Connection run-simpleweb
   "Start a simpleframework web server to serve the given handler according to the supplied options:

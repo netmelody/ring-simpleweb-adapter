@@ -6,5 +6,6 @@
   :dependencies [[ring/ring-core "1.1.6"]
                  [org.simpleframework/simple "4.1.21"]]
   :profiles
-  {:1.3 {:dependencies [[org.clojure/clojure "1.3.0"]]}
+  {:dev {:dependencies [[clj-http "0.5.7"]]}
+   :1.3 {:dependencies [[org.clojure/clojure "1.3.0"]]}
    :1.4 {:dependencies [[org.clojure/clojure "1.4.0"]]}})
