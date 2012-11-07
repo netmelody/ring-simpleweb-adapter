@@ -1,11 +1,12 @@
 (ns ring.adapter.simpleweb
   "Adapter for the simpleframework web server."
+  (:require [clojure.java.io :as io])
   (:import (org.simpleframework.http Status)
            (org.simpleframework.http.core Container)
            (org.simpleframework.transport.connect Connection SocketConnection)
            (org.simpleframework.http Response Request)
            (java.net InetSocketAddress SocketAddress)
-           (java.io PrintStream)))
+           (java.io PrintStream File InputStream FileInputStream)))
 
 (defn build-request-map [request]
   {
@@ -33,15 +34,36 @@
       (doseq [val val-or-vals]
         (.add response ^String key ^String val)))))
 
+(defn- set-body
+  "Update a simpleweb Response body with a String, ISeq, File or InputStream."
+  [^Response response, body]
+  (cond
+    (string? body)
+      (with-open [writer (.getPrintStream response)]
+        (.print writer body))
+    (seq? body)
+      (with-open [writer (.getPrintStream response)]
+        (doseq [chunk body]
+          (.print writer (str chunk))
+          (.flush writer)))
+    (instance? InputStream body)
+      (with-open [^InputStream b body]
+        (io/copy b (.getOutputStream response)))
+    (instance? File body)
+      (let [^File f body]
+        (with-open [stream (FileInputStream. f)]
+          (set-body response stream)))
+    (nil? body)
+      nil
+    :else
+      (throw (Exception. ^String (format "Unrecognized body: %s" body)))))
+
 (defn write-response [^Response response {:keys [status headers body]}]
-  (let [body (.getPrintStream response)]
-    (when status
-      (.setCode response status)
-      (.setText response (Status/getDescription status)))
-    
-    (set-headers response headers)
-    (.print body "Hello World")
-    (.close body)))
+  (when status
+    (.setCode response status)
+    (.setText response (Status/getDescription status)))
+  (set-headers response headers)
+  (set-body response body))
 
 (defn- proxy-handler
   "Returns a SimpleWeb Container implementation for the given Ring handler."
