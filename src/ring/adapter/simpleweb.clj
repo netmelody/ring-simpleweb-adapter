@@ -1,6 +1,7 @@
 (ns ring.adapter.simpleweb
   "Adapter for the simpleframework web server."
-  (:import (org.simpleframework.http.core Container)
+  (:import (org.simpleframework.http Status)
+           (org.simpleframework.http.core Container)
            (org.simpleframework.transport.connect Connection SocketConnection)
            (org.simpleframework.http Response Request)
            (java.net InetSocketAddress SocketAddress)
@@ -8,23 +9,37 @@
 
 (defn build-request-map [request]
   {
-;   :remote-addr (-> request .getClientAddress .getHostAddress)
 ;   :server-port        (.getPort uri)
 ;   :server-name        (.getHost uri)
+;   :remote-addr (-> request .getClientAddress .getHostAddress)
    :uri                (-> request .getPath .toString)
    :query-string       (-> request .getQuery .toString)
+;   :scheme             ""
    :request-method     (-> request .getMethod .toLowerCase keyword)
 ;   :headers            {}
    :content-type       (-> request .getContentType str)
    :content-length     (-> request .getContentLength)
 ;   :character-encoding (-> request .getContentType .getCharset)
+;   :ssl-client-cert    nil
    :body               (-> request .getContent)
    })
 
-(defn write-response [^Response response response-map]
+(defn set-headers
+  "Update a simpleweb Response with a map of headers."
+  [^Response response, headers]
+  (doseq [[key val-or-vals] headers]
+    (if (string? val-or-vals)
+      (.set response ^String key ^String val-or-vals)
+      (doseq [val val-or-vals]
+        (.add response ^String key ^String val)))))
+
+(defn write-response [^Response response {:keys [status headers body]}]
   (let [body (.getPrintStream response)]
-    (.set response "Content-Type", "text/plain")
-    (.set response "Server", "HelloWorld/1.0 (Simple 4.0)")
+    (when status
+      (.setCode response status)
+      (.setText response (Status/getDescription status)))
+    
+    (set-headers response headers)
     (.print body "Hello World")
     (.close body)))
 
