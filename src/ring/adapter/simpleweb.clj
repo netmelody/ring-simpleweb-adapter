@@ -9,21 +9,22 @@
            (java.io PrintStream File InputStream FileInputStream)))
 
 (defn build-request-map [request]
-  {
-;   :server-port        (.getPort uri)
-;   :server-name        (.getHost uri)
-;   :remote-addr (-> request .getClientAddress .getHostAddress)
-   :uri                (-> request .getPath .toString)
-   :query-string       (-> request .getQuery .toString)
-;   :scheme             ""
-   :request-method     (-> request .getMethod .toLowerCase keyword)
-;   :headers            {}
-   :content-type       (-> request .getContentType str)
-   :content-length     (-> request .getContentLength)
-;   :character-encoding (-> request .getContentType .getCharset)
-;   :ssl-client-cert    nil
-   :body               (-> request .getContent)
-   })
+  (let [content-type (-> request .getContentType)]
+    {
+  ;   :server-port        (.getPort uri)
+  ;   :server-name        (.getHost uri)
+     :remote-addr        (-> request .getClientAddress .getAddress .getHostAddress)
+     :uri                (-> request .getPath .toString)
+     :query-string       (-> request .getQuery .toString)
+     :scheme             (-> request .getAddress .getScheme)
+     :request-method     (-> request .getMethod .toLowerCase keyword)
+  ;   :headers            {}
+     :content-type       (if (nil? content-type) nil (.toString content-type))
+     :content-length     (-> request .getContentLength)
+     :character-encoding (if (nil? content-type) nil (.getCharset content-type))
+     :ssl-client-cert    nil
+     :body               (-> request .getInputStream)
+     }))
 
 (defn set-headers
   "Update a simpleweb Response with a map of headers."

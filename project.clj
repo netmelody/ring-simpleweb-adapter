@@ -1,4 +1,4 @@
-(defproject ring-simpleweb-adapter "0.1.0-SNAPSHOT"
+(defproject ring-simpleweb-adapter "0.1.0"
   :description "Ring adapter for the simpleframwork lightweight server"
   :url "http://github.com/netmelody/ring-simpleweb-adapter"
   :license {:name "Eclipse Public License"
