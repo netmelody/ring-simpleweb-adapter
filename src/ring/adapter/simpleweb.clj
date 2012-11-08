@@ -1,6 +1,7 @@
 (ns ring.adapter.simpleweb
   "Adapter for the simpleframework web server."
-  (:require [clojure.java.io :as io])
+  (:require [clojure.java.io :as io]
+            [clojure.string :as string])
   (:import (org.simpleframework.http Status)
            (org.simpleframework.http.core Container)
            (org.simpleframework.transport.connect Connection SocketConnection)
@@ -8,17 +9,25 @@
            (java.net InetSocketAddress SocketAddress)
            (java.io PrintStream File InputStream FileInputStream)))
 
-(defn build-request-map [request]
+(defn- get-headers
+  "Creates a name/value map of all the request headers."
+  [^Request request]
+  (reduce
+    (fn [headers, ^String name] (assoc headers (.toLowerCase name) (string/join ", " (.getValues request name))))
+    {}
+    (.getNames request)))
+
+(defn- build-request-map [^Request request]
   (let [content-type (-> request .getContentType)]
     {
-  ;   :server-port        (.getPort uri)
-  ;   :server-name        (.getHost uri)
+     :server-port        (-> request .getAddress .getPort)
+     :server-name        (-> request .getAddress .getDomain)
      :remote-addr        (-> request .getClientAddress .getAddress .getHostAddress)
      :uri                (-> request .getPath .toString)
      :query-string       (-> request .getQuery .toString)
      :scheme             (-> request .getAddress .getScheme)
      :request-method     (-> request .getMethod .toLowerCase keyword)
-  ;   :headers            {}
+     :headers            (get-headers request)
      :content-type       (if (nil? content-type) nil (.toString content-type))
      :content-length     (-> request .getContentLength)
      :character-encoding (if (nil? content-type) nil (.getCharset content-type))
@@ -26,7 +35,7 @@
      :body               (-> request .getInputStream)
      }))
 
-(defn set-headers
+(defn- set-headers
   "Update a simpleweb Response with a map of headers."
   [^Response response, headers]
   (doseq [[key val-or-vals] headers]
@@ -59,7 +68,7 @@
     :else
       (throw (Exception. ^String (format "Unrecognized body: %s" body)))))
 
-(defn write-response [^Response response {:keys [status headers body]}]
+(defn- write-response [^Response response {:keys [status headers body]}]
   (when status
     (.setCode response status)
     (.setText response (Status/getDescription status)))
@@ -73,6 +82,7 @@
     (handle [^Request request ^Response response]
       (let [request-map (build-request-map request)
             response-map (handler request-map)]
+        (println request-map)
         (when response-map
           (write-response response response-map))
         (.close response)))))
