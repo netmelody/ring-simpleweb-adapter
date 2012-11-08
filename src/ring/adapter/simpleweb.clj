@@ -25,7 +25,7 @@
      :remote-addr        (-> request .getClientAddress .getAddress .getHostAddress)
      :uri                (-> request .getPath .toString)
      :query-string       (-> request .getQuery .toString)
-     :scheme             (-> request .getAddress .getScheme)
+     :scheme             (-> request .getAddress .getScheme keyword)
      :request-method     (-> request .getMethod .toLowerCase keyword)
      :headers            (get-headers request)
      :content-type       (if (nil? content-type) nil (.toString content-type))
