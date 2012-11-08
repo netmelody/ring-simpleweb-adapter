@@ -82,7 +82,6 @@
     (handle [^Request request ^Response response]
       (let [request-map (build-request-map request)
             response-map (handler request-map)]
-        (println request-map)
         (when response-map
           (write-response response response-map))
         (.close response)))))
