@@ -3,7 +3,7 @@
   (:require [clojure.java.io :as io]
             [clojure.string :as string])
   (:import (org.simpleframework.http Status)
-           (org.simpleframework.http.core Container)
+           (org.simpleframework.http.core ContainerServer Container)
            (org.simpleframework.transport.connect Connection SocketConnection)
            (org.simpleframework.http Response Request)
            (java.net InetSocketAddress SocketAddress)
@@ -88,11 +88,12 @@
 
 (defn ^Connection run-simpleweb
   "Start a simpleframework web server to serve the given handler according to the supplied options:
-    :port - the port to listen on (defaults to 8181)"
-  [handler {:keys [port]}]
+    :port - the port to listen on (defaults to 8181)
+    :max-threads  - the maximum number of threads to use (default 50)"
+  [handler options]
   (let [container (proxy-handler handler)
-        ^Connection connection (SocketConnection. container)
-        ^SockectAddress address (InetSocketAddress. (or port 8181))]
+        ^Connection connection (SocketConnection. (ContainerServer. container (options :max-threads 50)))
+        ^SockectAddress address (InetSocketAddress. (or (:port options) 8181))]
     (.connect connection address)
     connection))
 
