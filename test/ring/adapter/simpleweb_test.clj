@@ -14,6 +14,11 @@
     :headers {"Content-Type" content-type}
     :body    ""}))
 
+(defn- echo-handler [request]
+  {:status 200
+   :headers {"request-map" (str (dissoc request :headers :body))}
+   :body (:body request)})
+
 (defmacro with-server [app options & body]
   `(let [server# (run-simpleweb ~app ~(assoc options :join? false))]
      (try
@@ -28,6 +33,24 @@
         (is (.startsWith (get-in response [:headers "content-type"])
                          "text/plain"))
         (is (= (:body response) "Hello World")))))
+  
+  (testing "echo server"
+    (with-server echo-handler {:port 4347}
+      (let [response (http/get "http://localhost:4347/foo/bar/baz?surname=jones&age=123" {:body "hello"})]
+        (is (= (:status response) 200))
+        (is (= (:body response) "hello"))
+        (let [request-map (load-string (get-in response [:headers "request-map"]))]
+          (is (= (:query-string request-map) "age=123&surname=jones"))
+          (is (= (:uri request-map) "/foo/bar/baz"))
+          (is (= (:content-length request-map) 5))
+          (is (= (:character-encoding request-map) "UTF-8"))
+          (is (= (:request-method request-map) :get))
+          (is (= (:content-type request-map) "text/plain; charset=UTF-8"))
+          (is (= (:remote-addr request-map) "127.0.0.1"))
+;          (is (= (:scheme request-map) :http))
+;          (is (= (:server-name request-map) "localhost"))
+;          (is (= (:server-port request-map) 4347))
+          (is (= (:ssl-client-cert request-map) nil))))))
 
   (testing "default character encoding"
     (with-server (content-type-handler "text/plain") {:port 4347}
