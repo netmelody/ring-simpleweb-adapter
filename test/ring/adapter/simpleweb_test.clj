@@ -16,7 +16,7 @@
 
 (defn- echo-handler [request]
   {:status 200
-   :headers {"request-map" (str (dissoc request :headers :body))}
+   :headers {"request-map" (str (dissoc request :body))}
    :body (:body request)})
 
 (defmacro with-server [app options & body]
