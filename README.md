@@ -47,6 +47,6 @@ The `run-simpleweb` function accepts a ring `handler` and an `options` map. The 
 
 ## License
 
-Copyright © 2012 FIXME
+Copyright © 2012 Tom Denley
 
 Distributed under the Eclipse Public License, the same as Clojure.
