@@ -41,7 +41,7 @@ The `run-simpleweb` function accepts a ring `handler` and an `options` map. The 
 ```clj
 {
  :port          8181 ;; the port to listen on
- :max-threads   50   ;; the maximum number of threads to use"
+ :max-threads   50   ;; the maximum number of threads to use
 }
 ```
 
