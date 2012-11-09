@@ -1,12 +1,12 @@
 # ring-simpleweb-adapter
 
-A [ring](https://github.com/ring-clojure/ring) adapter for the [Simple Http Engine](http://www.simpleframework.org/), commonly referred to as SimpleWeb.
+A [ring](https://github.com/ring-clojure/ring) adapter for the [Simple HTTP Engine](http://www.simpleframework.org/), commonly referred to as SimpleWeb.
 
 ## Motivation
 
-Simple provides a pure-Java HTTP server without using Servlets, and vastly outperforms most popular Java based servers (see [benchmarks](http://www.simpleframework.org/performance/comparison.php)).
+Simple provides a pure-Java HTTP server without using Servlets, and vastly outperforms most popular Java-based servers (see [benchmarks](http://www.simpleframework.org/performance/comparison.php)).
 
-This adapter aims to allow ring-based clojure applications to quicky transition to SimpleWeb and experience the resulting performance improvements, as well as a reduction in artifact size.
+This adapter aims to allow ring-based Clojure applications to quickly transition to SimpleWeb and experience the resulting performance improvements, as well as a reduction in artifact size.
 
 ## Availability
 
