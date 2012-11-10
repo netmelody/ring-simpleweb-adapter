@@ -39,7 +39,7 @@
       (let [response (http/get "http://localhost:4347/foo/bar/baz?surname=jones&age=123" {:body "hello"})]
         (is (= (:status response) 200))
         (is (= (:body response) "hello"))
-        (let [request-map (load-string (get-in response [:headers "request-map"]))]
+        (let [request-map (read-string (get-in response [:headers "request-map"]))]
           (is (= (:query-string request-map) "age=123&surname=jones"))
           (is (= (:uri request-map) "/foo/bar/baz"))
           (is (= (:content-length request-map) 5))
