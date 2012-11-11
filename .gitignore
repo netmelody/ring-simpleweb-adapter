@@ -5,6 +5,7 @@
 /checkouts
 /pom.xml
 /pom.xml.asc
+.settings/ccw.repl.cmdhistory.prefs
 *.jar
 *.class
 *.swp
