@@ -18,10 +18,11 @@
     (.getNames request)))
 
 (defn- build-request-map [^Request request]
-  (let [content-type (-> request .getContentType)]
+  (let [content-type (-> request .getContentType)
+        [host port] (-> request (.getValue "Host") (.split ":"))]
     {
-     :server-port        (-> request .getAddress .getPort)
-     :server-name        (-> request .getAddress .getDomain)
+     :server-port        (if port (Integer/valueOf port) nil)
+     :server-name        host
      :remote-addr        (-> request .getClientAddress .getAddress .getHostAddress)
      :uri                (-> request .getPath .toString)
      :query-string       (-> request .getQuery .toString)
@@ -82,6 +83,7 @@
     (handle [^Request request ^Response response]
       (let [request-map (build-request-map request)
             response-map (handler request-map)]
+        (println (:headers request-map)) 
         (when response-map
           (write-response response response-map))
         (.close response)))))

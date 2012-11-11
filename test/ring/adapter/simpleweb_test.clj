@@ -48,8 +48,8 @@
           (is (= (:content-type request-map) "text/plain; charset=UTF-8"))
           (is (= (:remote-addr request-map) "127.0.0.1"))
 ;          (is (= (:scheme request-map) :http))
-;          (is (= (:server-name request-map) "localhost"))
-;          (is (= (:server-port request-map) 4347))
+          (is (= (:server-name request-map) "localhost"))
+          (is (= (:server-port request-map) 4347))
           (is (= (:ssl-client-cert request-map) nil))))))
 
   (testing "default character encoding"
