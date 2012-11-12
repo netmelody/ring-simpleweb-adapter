@@ -26,7 +26,7 @@
      :remote-addr        (-> request .getClientAddress .getAddress .getHostAddress)
      :uri                (-> request .getPath .toString)
      :query-string       (-> request .getQuery .toString)
-     :scheme             (-> request .getAddress .getScheme keyword)
+     :scheme             :http
      :request-method     (-> request .getMethod .toLowerCase keyword)
      :headers            (get-headers request)
      :content-type       (if (nil? content-type) nil (.toString content-type))
@@ -34,7 +34,7 @@
      :character-encoding (if (nil? content-type) nil (.getCharset content-type))
      :ssl-client-cert    nil
      :body               (-> request .getInputStream)
-     }))
+    }))
 
 (defn- set-headers
   "Update a simpleweb Response with a map of headers."
