@@ -7,7 +7,9 @@
            (org.simpleframework.transport.connect Connection SocketConnection)
            (org.simpleframework.http Response Request)
            (java.net InetSocketAddress SocketAddress)
-           (java.io PrintStream File InputStream FileInputStream)))
+           (java.io PrintStream File InputStream FileInputStream)
+           (java.security KeyStore)
+           (javax.net.ssl SSLContext KeyManagerFactory)))
 
 (defn- get-headers
   "Creates a name/value map of all the request headers."
@@ -88,14 +90,27 @@
           (write-response response response-map))
         (.close response)))))
 
+(defn- ssl-context [{:keys [keystore key-password]}]
+  (let [store (KeyStore/getInstance (KeyStore/getDefaultType))
+        key-manager-factory (KeyManagerFactory/getInstance (KeyManagerFactory/getDefaultAlgorithm))
+        context (SSLContext/getInstance "SSL")]
+    (.load store (FileInputStream. keystore) (.toCharArray key-password))
+    (.init key-manager-factory store (.toCharArray key-password))
+    (.init context (.getKeyManagers key-manager-factory) nil nil)
+    context))
+
 (defn ^Connection run-simpleweb
   "Start a simpleframework web server to serve the given handler according to the supplied options:
-    :port - the port to listen on (defaults to 8181)
-    :max-threads  - the maximum number of threads to use (default 50)"
+    :port         - the port to listen on (defaults to 8181)
+    :max-threads  - the maximum number of threads to use (defaults to 50)
+    :keystore     - the keystore to use for SSL connections
+    :key-password - the password to the keystore"
   [handler options]
   (let [container (proxy-handler handler)
         ^Connection connection (SocketConnection. (ContainerServer. container (options :max-threads 50)))
         ^SockectAddress address (InetSocketAddress. (or (:port options) 8181))]
-    (.connect connection address)
+    (if (or (options :ssl?) (options :ssl-port))
+      (.connect connection address (ssl-context options))
+      (.connect connection address))
     connection))
 

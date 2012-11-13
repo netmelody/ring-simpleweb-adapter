@@ -63,4 +63,12 @@
     (with-server (content-type-handler "text/plain;charset=UTF-16;version=1") {:port 4347}
       (let [response (http/get "http://localhost:4347")]
         (is (= (get-in response [:headers "content-type"])
-               "text/plain;charset=UTF-16;version=1"))))))
+               "text/plain;charset=UTF-16;version=1")))))
+  
+  (testing "HTTPS server"
+    (with-server hello-world {:port 4347
+                              :keystore "test/keystore.jks"
+                              :key-password "password"}
+      (let [response (http/get "https://localhost:4347" {:insecure? true})]
+        (is (= (:status response) 200))
+        (is (= (:body response) "Hello World"))))))
