@@ -109,7 +109,7 @@
   (let [container (proxy-handler handler)
         ^Connection connection (SocketConnection. (ContainerServer. container (options :max-threads 50)))
         ^SockectAddress address (InetSocketAddress. (or (:port options) 8181))]
-    (if (or (options :ssl?) (options :ssl-port))
+    (if (options :keystore)
       (.connect connection address (ssl-context options))
       (.connect connection address))
     connection))
